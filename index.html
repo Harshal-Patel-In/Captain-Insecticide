@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- SEO Meta Tags -->
+    <title>Captain Insecticide| Coming Soon</title>
+    <meta name="description" content="Captain Insecticide. A new era of agricultural protection. Coming 2025.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- GSAP for Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #f4f1ea;        
+            --text-color: #0b1d15;     
+            --accent-color: #d15638;
+            --blob-gold: #e0c075;      
+            --blob-terra: #e69d72;     
+            --blob-green: #38786a;     
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-base);
+            min-height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            cursor: none; /* Desktop default */
+        }
+
+        /* --- 0. DESKTOP CURSOR --- */
+        .cursor-dot, .cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            display: block;
+        }
+        
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .cursor-circle {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(11, 29, 21, 0.3);
+            transition: border-color 0.3s ease;
+            background: transparent;
+        }
+        
+        body.hovering .cursor-circle {
+            width: 60px;
+            height: 60px;
+            border-color: var(--text-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 0.1 MOBILE TOUCH RIPPLE (New Effect) --- */
+        .touch-ripple {
+            position: fixed;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9998;
+            /* Start small */
+            width: 10px;
+            height: 10px;
+        }
+
+        /* --- 1. PRELOADER --- */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--text-color);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-base);
+        }
+        .preloader-text {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 2rem;
+            overflow: hidden;
+        }
+        .preloader-text span {
+            display: inline-block;
+            transform: translateY(100%);
+        }
+
+        /* --- 2. GRAIN & ATMOSPHERE --- */
+        .grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 90;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- 3. BACKGROUND ART --- */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.8;
+            mix-blend-mode: multiply;
+            will-change: transform;
+        }
+        .blob-1 { background: var(--blob-gold); width: 60vw; height: 60vw; top: -20%; right: -10%; }
+        .blob-2 { background: var(--blob-terra); width: 50vw; height: 50vw; bottom: -10%; left: 20%; }
+        .blob-3 { background: var(--blob-green); width: 40vw; height: 40vw; top: 10%; left: -10%; }
+
+        /* --- 4. HUD / CORNER ELEMENTS --- */
+        .hud-mark {
+            position: fixed;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            z-index: 50;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .bl { bottom: 1.5rem; left: 2rem; }
+        .br { bottom: 1.5rem; right: 2rem; text-align: right;}
+        
+        .crosshair {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 40;
+        }
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--text-color);
+            opacity: 0.3;
+        }
+        .crosshair::before { top: 9px; left: 0; width: 100%; height: 1px; }
+        .crosshair::after { left: 9px; top: 0; height: 100%; width: 1px; }
+        .c-bl { bottom: 2rem; left: 2rem; }
+        .c-br { bottom: 2rem; right: 2rem; }
+
+        /* --- 5. MAIN LAYOUT --- */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem 5vw;
+        }
+
+        /* HEADER STRUCTURE */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: auto;
+            min-height: 80px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .magnet-area {
+            padding: 15px; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1.4;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0; 
+        }
+
+        .nav-item {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-color);
+            text-decoration: none;
+            position: relative;
+            padding: 15px 20px; 
+        }
+        
+        .nav-text {
+            position: relative;
+        }
+        .nav-text::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--text-color);
+            transition: width 0.3s ease;
+        }
+        .nav-item:hover .nav-text::after {
+            width: 100%;
+        }
+
+        /* MAIN HERO */
+        .hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            width: 100%;
+            will-change: transform; /* Optimized for mobile scroll skew */
+        }
+
+        .tilt-container {
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            width: 100%;
+        }
+
+        .hero h1 {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 13vw;
+            line-height: 0.85;
+            font-weight: 400;
+            letter-spacing: -0.04em;
+            white-space: nowrap;
+        }
+
+        .line-1 {
+            display: block;
+            color: var(--text-color);
+            transform: translateZ(40px);
+        }
+        
+        .line-2 {
+            display: block;
+            color: transparent;
+            -webkit-text-stroke: 1px var(--text-color);
+            font-style: italic;
+            transform: translateZ(10px);
+        }
+
+        /* FOOTER */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 2rem;
+            width: 100%;
+        }
+
+        .manifesto {
+            max-width: 300px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .notify-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 300px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 5px;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            background: none;
+            border: none;
+            outline: none;
+            font-family: 'Bodoni Moda', serif;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* --- RESPONSIVE / TOUCH DEVICES --- */
+        @media (hover: none) and (pointer: coarse), (max-width: 1024px) {
+            body { cursor: auto; overflow: auto; }
+            .cursor-dot, .cursor-circle { display: none !important; }
+            
+            .wrapper { padding: 1.5rem 5vw; height: auto; display: block; }
+            
+            header { 
+                margin-bottom: 3rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .brand-text { display: block; font-size: 0.7rem; } 
+            
+            .nav-links { 
+                width: auto;
+                margin-left: auto; 
+            }
+            .nav-item { 
+                font-size: 0.7rem; 
+                padding: 10px 12px; 
+            }
+
+            .hero { 
+                min-height: 50vh; 
+                align-items: center; 
+                margin-bottom: 3rem;
+            }
+            
+            .hero h1 { 
+                font-size: 18vw; 
+                white-space: normal; 
+                line-height: 0.9;
+            }
+
+            .line-1, .line-2 { transform: none !important; }
+            .tilt-container { transform: none !important; }
+
+            footer { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 3rem; 
+            }
+            
+            .manifesto, .notify-wrap { width: 100%; max-width: 100%; }
+
+            /* HUD Hidden on Mobile */
+            .crosshair { display: none; }
+            .hud-mark { display: none; }
+            
+            .blob { opacity: 0.5; filter: blur(60px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CUSTOM CURSOR (Hidden on Mobile via CSS) -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-circle"></div>
+
+    <!-- PRELOADER -->
+    <div class="preloader">
+        <div class="preloader-text">
+            <span>CAPTAIN</span>
+        </div>
+    </div>
+
+    <!-- HUD MARKERS -->
+    <div class="hud-mark bl">LAT: 34.0522<br>LON: -118.2437</div>
+    <div class="hud-mark br">SCROLL TO EXPLORE<br>ENCRYPTED</div>
+
+    <!-- Bottom Crosshairs Only -->
+    <div class="crosshair c-bl"></div>
+    <div class="crosshair c-br"></div>
+
+    <!-- GRAIN -->
+    <div class="grain"></div>
+
+    <!-- BACKGROUND ART -->
+    <div class="bg-layer">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="wrapper">
+        <header>
+            <div class="brand-container">
+                <div class="logo-wrap magnet-area">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-color)">
+                            <path d="M12 2L3 7V13C3 18.5 7 22 12 24C17 22 21 18.5 21 13V7L12 2ZM12 20C9.5 19 6 16.5 5.2 13H18.8C18 16.5 14.5 19 12 20Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 6L8 8V11H16V8L12 6Z" fill="currentColor" opacity="0.6"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    Captain<br>Insecticide<br>&copy;2025
+                </div>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#" class="nav-item magnet-area"><span class="nav-text">Journal</span></a>
+                <a href="#" class="nav-item magnet-area"><span class="nav-text">Instagram</span></a>
+                <a href="#" class="nav-item magnet-area"><span class="nav-text">Twitter</span></a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="tilt-container">
+                <h1 class="line-1">Coming</h1>
+                <h1 class="line-2">2025</h1>
+            </div>
+        </section>
+
+        <footer>
+            <div class="manifesto">
+                We are redefining agricultural protection. No harsh chemicals, just smart biology.
+            </div>
+
+            <div class="notify-wrap">
+                <form id="notifyForm">
+                    <div class="input-group">
+                        <input type="email" placeholder="Notify me" required>
+                        <button type="submit" class="magnet-area">
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Check if device supports touch/fine pointer
+        const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+        // --- 1. PRELOADER ANIMATION ---
+        const tl = gsap.timeline();
+        
+        tl.to(".preloader-text span", {
+            y: "0%",
+            duration: 1,
+            ease: "power4.out",
+            delay: 0.2
+        })
+        .to(".preloader", {
+            y: "-100%",
+            duration: 1.2,
+            ease: "expo.inOut",
+            delay: 0.5
+        })
+        .from(".tilt-container h1", {
+            y: 100,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: "power3.out"
+        }, "-=0.8");
+
+        // --- 2. TOUCH EFFECTS (Mobile/Tablet Only) ---
+        if (isTouch) {
+            // EFFECT A: "Sonar" Touch Ripples
+            window.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                createRipple(touch.clientX, touch.clientY);
+            }, {passive: true});
+
+            function createRipple(x, y) {
+                const ripple = document.createElement('div');
+                ripple.classList.add('touch-ripple');
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                document.body.appendChild(ripple);
+                
+                // Animate Ripple
+                gsap.to(ripple, {
+                    scale: 6,      // Expands significantly
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power1.out",
+                    onComplete: () => ripple.remove()
+                });
+            }
+
+            // EFFECT B: Momentum Scroll Skew
+            let lastScrollTop = 0;
+            let skewTween;
+            
+            window.addEventListener('scroll', () => {
+                const st = window.scrollY;
+                const velocity = st - lastScrollTop;
+                lastScrollTop = st;
+                
+                // Calculate skew (clamped to avoid text becoming unreadable)
+                // Positive velocity (scrolling down) -> Positive Skew
+                const skewAmount = Math.min(Math.max(velocity * 0.1, -4), 4);
+                
+                // Animate the hero text skew
+                if (skewTween) skewTween.kill();
+                skewTween = gsap.to('.hero h1', {
+                    skewY: skewAmount,
+                    duration: 0.3,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+                
+                // Return to 0 when stopped
+                gsap.to('.hero h1', {
+                    skewY: 0,
+                    duration: 0.5,
+                    delay: 0.1,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            }, {passive: true});
+        }
+
+        // --- 3. DESKTOP INTERACTION LOGIC (Only runs on non-touch) ---
+        if (!isTouch) {
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorCircle = document.querySelector('.cursor-circle');
+            const magnets = document.querySelectorAll('.magnet-area');
+
+            // Smooth Mouse Follow
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Move dot instantly
+                gsap.set(cursorDot, { x: mouseX, y: mouseY });
+                
+                // Tilt the Hero Text based on mouse position
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const rotateX = ((mouseY - centerY) / centerY) * -8;
+                const rotateY = ((mouseX - centerX) / centerX) * 8;
+                
+                gsap.to(".tilt-container", {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 1,
+                    ease: "power2.out"
+                });
+            });
+
+            // Loop for smooth circle lag
+            function animateCursor() {
+                cursorX += (mouseX - cursorX) * 0.15;
+                cursorY += (mouseY - cursorY) * 0.15;
+                gsap.set(cursorCircle, { x: cursorX, y: cursorY });
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            // Magnetic Pull & Focus Ring Logic
+            magnets.forEach(magnet => {
+                magnet.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovering');
+                    gsap.to(cursorCircle, { width: 60, height: 60, duration: 0.3 });
+                });
+                
+                magnet.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovering');
+                    gsap.to(cursorCircle, { width: 40, height: 40, duration: 0.3 });
+                    gsap.to(magnet, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+                });
+
+                magnet.addEventListener('mousemove', (e) => {
+                    const rect = magnet.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    const moveX = (e.clientX - centerX) * 0.3;
+                    const moveY = (e.clientY - centerY) * 0.3;
+                    
+                    gsap.to(magnet, { x: moveX, y: moveY, duration: 0.3 });
+                });
+            });
+        }
+
+        // --- 4. FORM SUBMIT EFFECT ---
+        const form = document.getElementById('notifyForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            btn.innerHTML = '<i data-lucide="check"></i>';
+            lucide.createIcons();
+            gsap.to(btn, { rotation: 360, duration: 0.5 });
+        });
+
+    </script>
+</body>
+</html>
