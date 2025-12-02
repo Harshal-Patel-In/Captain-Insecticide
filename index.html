@@ -4,19 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO Meta Tags -->
-    <title>Captain Insecticide| Coming Soon</title>
+    <title>Captain Insecticide | Coming Soon</title>
     <meta name="description" content="Captain Insecticide. A new era of agricultural protection. Coming 2025.">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- GSAP for Animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
@@ -41,10 +36,10 @@
             display: flex;
             flex-direction: column;
             -webkit-font-smoothing: antialiased;
-            cursor: none; /* Desktop default */
+            cursor: none; 
+            position: relative; 
         }
 
-        /* --- 0. DESKTOP CURSOR --- */
         .cursor-dot, .cursor-circle {
             position: fixed;
             top: 0;
@@ -78,20 +73,17 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* --- 0.1 MOBILE TOUCH RIPPLE (New Effect) --- */
         .touch-ripple {
-            position: fixed;
+            position: absolute; 
             border: 1px solid var(--text-color);
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            z-index: 9998;
-            /* Start small */
+            z-index: 5; 
             width: 10px;
             height: 10px;
         }
 
-        /* --- 1. PRELOADER --- */
         .preloader {
             position: fixed;
             top: 0;
@@ -115,7 +107,6 @@
             transform: translateY(100%);
         }
 
-        /* --- 2. GRAIN & ATMOSPHERE --- */
         .grain {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -125,7 +116,6 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* --- 3. BACKGROUND ART --- */
         .bg-layer {
             position: fixed;
             inset: 0;
@@ -143,7 +133,6 @@
         .blob-2 { background: var(--blob-terra); width: 50vw; height: 50vw; bottom: -10%; left: 20%; }
         .blob-3 { background: var(--blob-green); width: 40vw; height: 40vw; top: 10%; left: -10%; }
 
-        /* --- 4. HUD / CORNER ELEMENTS --- */
         .hud-mark {
             position: fixed;
             color: var(--text-color);
@@ -177,10 +166,9 @@
         .c-bl { bottom: 2rem; left: 2rem; }
         .c-br { bottom: 2rem; right: 2rem; }
 
-        /* --- 5. MAIN LAYOUT --- */
         .wrapper {
             position: relative;
-            z-index: 10;
+            z-index: 10; 
             width: 100%;
             min-height: 100vh;
             display: flex;
@@ -188,7 +176,6 @@
             padding: 2.5rem 5vw;
         }
 
-        /* HEADER STRUCTURE */
         header {
             display: flex;
             justify-content: space-between;
@@ -197,6 +184,7 @@
             min-height: 80px;
             width: 100%;
             position: relative;
+            z-index: 20; 
         }
         
         .brand-container {
@@ -266,7 +254,6 @@
             width: 100%;
         }
 
-        /* MAIN HERO */
         .hero {
             flex: 1;
             display: flex;
@@ -274,7 +261,7 @@
             justify-content: center;
             perspective: 1000px;
             width: 100%;
-            will-change: transform; /* Optimized for mobile scroll skew */
+            will-change: transform;
         }
 
         .tilt-container {
@@ -307,7 +294,6 @@
             transform: translateZ(10px);
         }
 
-        /* FOOTER */
         footer {
             display: flex;
             justify-content: space-between;
@@ -336,6 +322,7 @@
             border-bottom: 1px solid var(--text-color);
             padding-bottom: 5px;
             align-items: center;
+            transition: border-color 0.4s ease;
         }
 
         input {
@@ -346,6 +333,7 @@
             font-family: 'Bodoni Moda', serif;
             font-size: 1.2rem;
             color: var(--text-color);
+            opacity: 1;
         }
 
         button {
@@ -354,9 +342,9 @@
             color: var(--text-color);
             cursor: pointer;
             padding: 5px;
+            transform-origin: center;
         }
 
-        /* --- RESPONSIVE / TOUCH DEVICES --- */
         @media (hover: none) and (pointer: coarse), (max-width: 1024px) {
             body { cursor: auto; overflow: auto; }
             .cursor-dot, .cursor-circle { display: none !important; }
@@ -403,7 +391,6 @@
             
             .manifesto, .notify-wrap { width: 100%; max-width: 100%; }
 
-            /* HUD Hidden on Mobile */
             .crosshair { display: none; }
             .hud-mark { display: none; }
             
@@ -413,36 +400,29 @@
 </head>
 <body>
 
-    <!-- CUSTOM CURSOR (Hidden on Mobile via CSS) -->
     <div class="cursor-dot"></div>
     <div class="cursor-circle"></div>
 
-    <!-- PRELOADER -->
     <div class="preloader">
         <div class="preloader-text">
             <span>CAPTAIN</span>
         </div>
     </div>
 
-    <!-- HUD MARKERS -->
     <div class="hud-mark bl">LAT: 34.0522<br>LON: -118.2437</div>
     <div class="hud-mark br">SCROLL TO EXPLORE<br>ENCRYPTED</div>
 
-    <!-- Bottom Crosshairs Only -->
     <div class="crosshair c-bl"></div>
     <div class="crosshair c-br"></div>
 
-    <!-- GRAIN -->
     <div class="grain"></div>
 
-    <!-- BACKGROUND ART -->
     <div class="bg-layer">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="wrapper">
         <header>
             <div class="brand-container">
@@ -490,13 +470,12 @@
             </div>
         </footer>
     </div>
+
     <script>
         lucide.createIcons();
 
-        // Check if device supports touch/fine pointer
-        const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        // --- 1. PRELOADER ANIMATION ---
         const tl = gsap.timeline();
         
         tl.to(".preloader-text span", {
@@ -519,32 +498,28 @@
             ease: "power3.out"
         }, "-=0.8");
 
-        // --- 2. TOUCH EFFECTS (Mobile/Tablet Only) ---
+        window.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            createRipple(touch.pageX, touch.pageY);
+        }, {passive: true});
+
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('touch-ripple');
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            document.body.appendChild(ripple);
+            
+            gsap.to(ripple, {
+                scale: 6,      
+                opacity: 0,
+                duration: 0.8,
+                ease: "power1.out",
+                onComplete: () => ripple.remove()
+            });
+        }
+
         if (isTouch) {
-            // EFFECT A: "Sonar" Touch Ripples
-            window.addEventListener('touchstart', (e) => {
-                const touch = e.touches[0];
-                createRipple(touch.clientX, touch.clientY);
-            }, {passive: true});
-
-            function createRipple(x, y) {
-                const ripple = document.createElement('div');
-                ripple.classList.add('touch-ripple');
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                document.body.appendChild(ripple);
-                
-                // Animate Ripple
-                gsap.to(ripple, {
-                    scale: 6,      // Expands significantly
-                    opacity: 0,
-                    duration: 0.8,
-                    ease: "power1.out",
-                    onComplete: () => ripple.remove()
-                });
-            }
-
-            // EFFECT B: Momentum Scroll Skew
             let lastScrollTop = 0;
             let skewTween;
             
@@ -553,11 +528,8 @@
                 const velocity = st - lastScrollTop;
                 lastScrollTop = st;
                 
-                // Calculate skew (clamped to avoid text becoming unreadable)
-                // Positive velocity (scrolling down) -> Positive Skew
                 const skewAmount = Math.min(Math.max(velocity * 0.1, -4), 4);
                 
-                // Animate the hero text skew
                 if (skewTween) skewTween.kill();
                 skewTween = gsap.to('.hero h1', {
                     skewY: skewAmount,
@@ -566,7 +538,6 @@
                     overwrite: "auto"
                 });
                 
-                // Return to 0 when stopped
                 gsap.to('.hero h1', {
                     skewY: 0,
                     duration: 0.5,
@@ -577,24 +548,19 @@
             }, {passive: true});
         }
 
-        // --- 3. DESKTOP INTERACTION LOGIC (Only runs on non-touch) ---
-        if (!isTouch) {
+        if (!isTouch || window.matchMedia("(pointer: fine)").matches) {
             const cursorDot = document.querySelector('.cursor-dot');
             const cursorCircle = document.querySelector('.cursor-circle');
             const magnets = document.querySelectorAll('.magnet-area');
 
-            // Smooth Mouse Follow
             let mouseX = 0, mouseY = 0;
             let cursorX = 0, cursorY = 0;
 
             document.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
-                
-                // Move dot instantly
                 gsap.set(cursorDot, { x: mouseX, y: mouseY });
                 
-                // Tilt the Hero Text based on mouse position
                 const centerX = window.innerWidth / 2;
                 const centerY = window.innerHeight / 2;
                 const rotateX = ((mouseY - centerY) / centerY) * -8;
@@ -608,7 +574,6 @@
                 });
             });
 
-            // Loop for smooth circle lag
             function animateCursor() {
                 cursorX += (mouseX - cursorX) * 0.15;
                 cursorY += (mouseY - cursorY) * 0.15;
@@ -617,7 +582,6 @@
             }
             animateCursor();
 
-            // Magnetic Pull & Focus Ring Logic
             magnets.forEach(magnet => {
                 magnet.addEventListener('mouseenter', () => {
                     document.body.classList.add('hovering');
@@ -643,17 +607,50 @@
             });
         }
 
-        // --- 4. FORM SUBMIT EFFECT ---
         const form = document.getElementById('notifyForm');
+        const input = form.querySelector('input');
+        const btn = form.querySelector('button');
+        const inputGroup = form.querySelector('.input-group');
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const btn = form.querySelector('button');
-            btn.innerHTML = '<i data-lucide="check"></i>';
-            lucide.createIcons();
-            gsap.to(btn, { rotation: 360, duration: 0.5 });
+            
+            input.disabled = true;
+            btn.disabled = true;
+
+            gsap.to(btn, { 
+                rotation: 720, 
+                duration: 1.2, 
+                ease: "expo.inOut",
+                onComplete: () => {
+                    btn.innerHTML = '<i data-lucide="check"></i>';
+                    lucide.createIcons();
+                    
+                    gsap.to(input, {
+                        y: -20,
+                        opacity: 0,
+                        duration: 0.4,
+                        ease: "power2.in",
+                        onComplete: () => {
+                            input.value = "You're on the list.";
+                            input.style.fontStyle = "italic";
+                            input.style.opacity = 0; 
+                            
+                            gsap.fromTo(input, 
+                                { y: 20, opacity: 0 },
+                                { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+                            );
+
+                            gsap.fromTo(inputGroup, 
+                                { borderBottomColor: "var(--text-color)" },
+                                { borderBottomColor: "rgba(11, 29, 21, 0.3)", duration: 0.8, ease: "power2.out" }
+                            );
+                        }
+                    });
+                }
+            });
         });
 
     </script>
 </body>
-
 </html>
