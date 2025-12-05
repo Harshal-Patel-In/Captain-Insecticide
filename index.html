@@ -13,7 +13,7 @@
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Added Three.js -->
+    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
@@ -48,9 +48,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            /* transform is handled by GSAP now for better performance */
             border-radius: 50%;
-            z-index: 10001; /* Ensure it sits above preloader */
+            z-index: 10001; 
             pointer-events: none;
             display: block;
         }
@@ -121,7 +120,7 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* --- NEW WEBGL BACKGROUND --- */
+        /* --- WEBGL BACKGROUND --- */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -144,7 +143,6 @@
             pointer-events: none;
         }
         
-        /* FIXED: Moved text inward to avoid crosshair overlap */
         .bl { bottom: 1.8rem; left: 3.5rem; }
         .br { bottom: 1.8rem; right: 3.5rem; text-align: right;}
         
@@ -175,8 +173,6 @@
             display: flex;
             flex-direction: column;
             padding: 2.5rem 5vw;
-            /* FIXED: Removed conflicting CSS transitions for filter/opacity */
-            /* This allows GSAP to handle the blur timing perfectly without lag */
         }
 
         header {
@@ -312,7 +308,7 @@
             font-size: 0.9rem;
             line-height: 1.6;
             font-weight: 500;
-            text-align: left; /* FIXED: Changed from justify to left */
+            text-align: left;
         }
 
         .notify-wrap {
@@ -359,7 +355,7 @@
             width: 50vw;
             height: 100vh;
             background: var(--journal-bg);
-            z-index: 100; /* Above wrapper, below cursor */
+            z-index: 100;
             transform: translateX(101%);
             border-left: 1px solid rgba(11, 29, 21, 0.1);
             display: flex;
@@ -392,7 +388,7 @@
             justify-content: center;
             align-items: center;
             padding: 0;
-            cursor: none; /* Let custom cursor handle it */
+            cursor: none;
             color: var(--text-color);
             transition: transform 0.3s ease, background 0.3s ease;
         }
@@ -408,7 +404,6 @@
             overflow-y: auto;
             padding: 4rem;
             padding-bottom: 8rem;
-            /* Hide Scrollbar */
             scrollbar-width: none; 
             -ms-overflow-style: none;
         }
@@ -418,7 +413,7 @@
 
         .article {
             margin-bottom: 5rem;
-            opacity: 0; /* Handled by GSAP */
+            opacity: 0;
             transform: translateY(30px);
         }
 
@@ -507,7 +502,6 @@
             .crosshair { display: none; }
             .hud-mark { display: none; }
             
-            /* Mobile Journal */
             .journal-overlay {
                 width: 100vw;
             }
@@ -517,7 +511,7 @@
         }
     </style>
 
-    <!-- FLUID SHADER SCRIPT -->
+    <!-- FLUID SHADER SCRIPTS -->
     <script id="vertexShader" type="x-shader/x-vertex">
         varying vec2 vUv;
         void main() {
@@ -567,20 +561,20 @@
             float noise1 = snoise(uv * 1.5 + time);
             float noise2 = snoise(uv * 2.5 - time * 0.5);
             
-            // Base colors (extracted from your palette)
-            vec3 colorBg = vec3(0.957, 0.945, 0.918); // #f4f1ea (Base)
-            vec3 color1 = vec3(0.878, 0.753, 0.459);  // #e0c075 (Gold)
-            vec3 color2 = vec3(0.902, 0.616, 0.447);  // #e69d72 (Terra)
-            vec3 color3 = vec3(0.22, 0.471, 0.416);   // #38786a (Green)
+            // Base colors
+            vec3 colorBg = vec3(0.957, 0.945, 0.918); // #f4f1ea
+            vec3 color1 = vec3(0.878, 0.753, 0.459);  // #e0c075
+            vec3 color2 = vec3(0.902, 0.616, 0.447);  // #e69d72
+            vec3 color3 = vec3(0.22, 0.471, 0.416);   // #38786a
 
-            // Mix logic resembling fluid dispersion
+            // Mix logic
             float mix1 = smoothstep(0.2, 0.8, noise1);
             float mix2 = smoothstep(0.3, 0.9, noise2 + noise1 * 0.5);
             
             vec3 finalColor = mix(colorBg, color1, mix1 * 0.4);
             finalColor = mix(finalColor, color2, mix2 * 0.3);
             
-            // Add soft green spots
+            // Green spots
             float spot = smoothstep(0.4, 0.6, snoise(uv * 3.0 + time * 1.2));
             finalColor = mix(finalColor, color3, spot * 0.2);
 
@@ -589,7 +583,7 @@
     </script>
 </head>
 <body>
-
+    
     <div class="cursor-dot"></div>
     <div class="cursor-circle"></div>
 
@@ -607,7 +601,7 @@
 
     <div class="grain"></div>
 
-    <!-- Replaced CSS Blobs with Canvas Container -->
+    <!-- WebGL Background -->
     <div id="canvas-container"></div>
 
     <div class="wrapper">
@@ -729,9 +723,9 @@
             ease: "power3.out"
         }, "-=0.8");
 
-        /* --- THREE.JS FLUID BACKGROUND INIT --- */
+        /* --- THREE.JS BACKGROUND --- */
         function initFluidBackground() {
-            if(isTouch) return; // Optional performance save for mobile
+            // REMOVED THE TOUCH CHECK so it loads everywhere
             
             const container = document.getElementById('canvas-container');
             const scene = new THREE.Scene();
@@ -769,7 +763,7 @@
             });
         }
         
-        // Init Background
+        // Initialize immediately
         initFluidBackground();
 
         /* --- INTERACTION LOGIC --- */
@@ -829,7 +823,7 @@
             const cursorDot = document.querySelector('.cursor-dot');
             const cursorCircle = document.querySelector('.cursor-circle');
             
-            // Fix: Set initial centering offset that GSAP will preserve
+            // Initial center set
             gsap.set([cursorDot, cursorCircle], {xPercent: -50, yPercent: -50});
             
             let mouseX = 0, mouseY = 0;
@@ -864,7 +858,6 @@
             }
             animateCursor();
 
-            // Function to re-bind magnets (useful if DOM changes, though not needed here, good practice)
             function bindMagnets() {
                 const magnets = document.querySelectorAll('.magnet-area');
                 magnets.forEach(magnet => {
@@ -917,14 +910,12 @@
             isJournalOpen = true;
             document.body.classList.add('journal-open');
 
-            // Slide in Overlay
             gsap.to(journalOverlay, {
                 x: "0%",
                 duration: 1.2,
                 ease: "expo.inOut"
             });
 
-            // Push/Dim Background Wrapper
             gsap.to(wrapper, {
                 x: "-10%",
                 scale: 0.95,
@@ -934,7 +925,6 @@
                 ease: "expo.inOut"
             });
 
-            // Stagger Content In
             gsap.fromTo(articles, 
                 { y: 50, opacity: 0 },
                 { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, delay: 0.4, ease: "power3.out" }
@@ -945,14 +935,12 @@
             isJournalOpen = false;
             document.body.classList.remove('journal-open');
 
-            // Slide out Overlay
             gsap.to(journalOverlay, {
                 x: "101%",
                 duration: 1,
                 ease: "expo.inOut"
             });
 
-            // Restore Background Wrapper
             gsap.to(wrapper, {
                 x: "0%",
                 scale: 1,
@@ -962,7 +950,6 @@
                 ease: "expo.inOut"
             });
         }
-
 
         /* --- NOTIFY FORM --- */
         const form = document.getElementById('notifyForm');
