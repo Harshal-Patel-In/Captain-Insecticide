@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Captain Insecticide | Coming Soon</title>
-    <meta name="description" content="Captain Insecticide. A new era of agricultural protection. Coming 2025.">
+    <title>Captain Insecticide | Perfect Solutions</title>
+    <meta name="description" content="Captain Insecticide. Mastering the art of clever chemistry. Perfect chemical solutions for agriculture. Coming 2026.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,8 @@
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Added Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         :root {
@@ -22,6 +24,7 @@
             --blob-gold: #e0c075;      
             --blob-terra: #e69d72;     
             --blob-green: #38786a;     
+            --journal-bg: #eaddcf;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,13 +43,14 @@
             position: relative; 
         }
 
+        /* --- CURSOR --- */
         .cursor-dot, .cursor-circle {
             position: fixed;
             top: 0;
             left: 0;
-            transform: translate(-50%, -50%);
+            /* transform is handled by GSAP now for better performance */
             border-radius: 50%;
-            z-index: 9999;
+            z-index: 10001; /* Ensure it sits above preloader */
             pointer-events: none;
             display: block;
         }
@@ -84,6 +88,7 @@
             height: 10px;
         }
 
+        /* --- UI ELEMENTS --- */
         .preloader {
             position: fixed;
             top: 0;
@@ -116,22 +121,16 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        .bg-layer {
+        /* --- NEW WEBGL BACKGROUND --- */
+        #canvas-container {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 0;
+            pointer-events: none;
         }
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.8;
-            mix-blend-mode: multiply;
-            will-change: transform;
-        }
-        .blob-1 { background: var(--blob-gold); width: 60vw; height: 60vw; top: -20%; right: -10%; }
-        .blob-2 { background: var(--blob-terra); width: 50vw; height: 50vw; bottom: -10%; left: 20%; }
-        .blob-3 { background: var(--blob-green); width: 40vw; height: 40vw; top: 10%; left: -10%; }
 
         .hud-mark {
             position: fixed;
@@ -145,8 +144,9 @@
             pointer-events: none;
         }
         
-        .bl { bottom: 1.5rem; left: 2rem; }
-        .br { bottom: 1.5rem; right: 2rem; text-align: right;}
+        /* FIXED: Moved text inward to avoid crosshair overlap */
+        .bl { bottom: 1.8rem; left: 3.5rem; }
+        .br { bottom: 1.8rem; right: 3.5rem; text-align: right;}
         
         .crosshair {
             position: fixed;
@@ -166,6 +166,7 @@
         .c-bl { bottom: 2rem; left: 2rem; }
         .c-br { bottom: 2rem; right: 2rem; }
 
+        /* --- WRAPPER & HEADER --- */
         .wrapper {
             position: relative;
             z-index: 10; 
@@ -174,6 +175,8 @@
             display: flex;
             flex-direction: column;
             padding: 2.5rem 5vw;
+            /* FIXED: Removed conflicting CSS transitions for filter/opacity */
+            /* This allows GSAP to handle the blur timing perfectly without lag */
         }
 
         header {
@@ -205,8 +208,9 @@
             height: 48px;
             border: 1px solid var(--text-color);
             border-radius: 50%;
-            display: grid;
-            place-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: transform 0.3s ease;
         }
 
@@ -254,6 +258,7 @@
             width: 100%;
         }
 
+        /* --- HERO --- */
         .hero {
             flex: 1;
             display: flex;
@@ -303,10 +308,11 @@
         }
 
         .manifesto {
-            max-width: 300px;
+            max-width: 380px;
             font-size: 0.9rem;
             line-height: 1.6;
             font-weight: 500;
+            text-align: left; /* FIXED: Changed from justify to left */
         }
 
         .notify-wrap {
@@ -345,6 +351,113 @@
             transform-origin: center;
         }
 
+        /* --- JOURNAL PANEL --- */
+        .journal-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 50vw;
+            height: 100vh;
+            background: var(--journal-bg);
+            z-index: 100; /* Above wrapper, below cursor */
+            transform: translateX(101%);
+            border-left: 1px solid rgba(11, 29, 21, 0.1);
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.05);
+        }
+
+        .journal-header {
+            padding: 3rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(11, 29, 21, 0.1);
+        }
+
+        .journal-title {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 2rem;
+            font-style: italic;
+        }
+
+        .close-btn {
+            background: none;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            cursor: none; /* Let custom cursor handle it */
+            color: var(--text-color);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: var(--text-color);
+            color: var(--bg-base);
+            transform: rotate(90deg);
+        }
+
+        .journal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4rem;
+            padding-bottom: 8rem;
+            /* Hide Scrollbar */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .journal-content::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        .article {
+            margin-bottom: 5rem;
+            opacity: 0; /* Handled by GSAP */
+            transform: translateY(30px);
+        }
+
+        .article-meta {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+            display: block;
+        }
+
+        .article h2 {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .article p {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            max-width: 90%;
+            font-weight: 300;
+        }
+
+        .article-divider {
+            width: 100px;
+            height: 1px;
+            background: var(--text-color);
+            margin: 3rem 0;
+            opacity: 0.2;
+        }
+
+        /* --- MOBILE --- */
         @media (hover: none) and (pointer: coarse), (max-width: 1024px) {
             body { cursor: auto; overflow: auto; }
             .cursor-dot, .cursor-circle { display: none !important; }
@@ -394,9 +507,86 @@
             .crosshair { display: none; }
             .hud-mark { display: none; }
             
-            .blob { opacity: 0.5; filter: blur(60px); }
+            /* Mobile Journal */
+            .journal-overlay {
+                width: 100vw;
+            }
+            .journal-header { padding: 1.5rem; }
+            .journal-content { padding: 2rem 1.5rem; }
+            .article h2 { font-size: 2.2rem; }
         }
     </style>
+
+    <!-- FLUID SHADER SCRIPT -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        uniform float uTime;
+        uniform vec2 uResolution;
+        varying vec2 vUv;
+
+        // Simplex Noise Function
+        vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+        float snoise(vec2 v){
+            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+            vec2 i  = floor(v + dot(v, C.yy) );
+            vec2 x0 = v -   i + dot(i, C.xx);
+            vec2 i1;
+            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+            i = mod(i, 289.0);
+            vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+            m = m*m ;
+            m = m*m ;
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+            m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+            vec3 g;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+        }
+
+        void main() {
+            vec2 uv = vUv;
+            
+            // Slow, organic movement
+            float time = uTime * 0.15; 
+            
+            // Create organic distortion
+            float noise1 = snoise(uv * 1.5 + time);
+            float noise2 = snoise(uv * 2.5 - time * 0.5);
+            
+            // Base colors (extracted from your palette)
+            vec3 colorBg = vec3(0.957, 0.945, 0.918); // #f4f1ea (Base)
+            vec3 color1 = vec3(0.878, 0.753, 0.459);  // #e0c075 (Gold)
+            vec3 color2 = vec3(0.902, 0.616, 0.447);  // #e69d72 (Terra)
+            vec3 color3 = vec3(0.22, 0.471, 0.416);   // #38786a (Green)
+
+            // Mix logic resembling fluid dispersion
+            float mix1 = smoothstep(0.2, 0.8, noise1);
+            float mix2 = smoothstep(0.3, 0.9, noise2 + noise1 * 0.5);
+            
+            vec3 finalColor = mix(colorBg, color1, mix1 * 0.4);
+            finalColor = mix(finalColor, color2, mix2 * 0.3);
+            
+            // Add soft green spots
+            float spot = smoothstep(0.4, 0.6, snoise(uv * 3.0 + time * 1.2));
+            finalColor = mix(finalColor, color3, spot * 0.2);
+
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    </script>
 </head>
 <body>
 
@@ -417,11 +607,8 @@
 
     <div class="grain"></div>
 
-    <div class="bg-layer">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <!-- Replaced CSS Blobs with Canvas Container -->
+    <div id="canvas-container"></div>
 
     <div class="wrapper">
         <header>
@@ -440,7 +627,7 @@
             </div>
             
             <nav class="nav-links">
-                <a href="#" class="nav-item magnet-area"><span class="nav-text">Journal</span></a>
+                <a href="#" id="journal-trigger" class="nav-item magnet-area"><span class="nav-text">Journal</span></a>
                 <a href="#" class="nav-item magnet-area"><span class="nav-text">Instagram</span></a>
                 <a href="#" class="nav-item magnet-area"><span class="nav-text">Twitter</span></a>
             </nav>
@@ -455,7 +642,7 @@
 
         <footer>
             <div class="manifesto">
-                We are redefining agricultural protection. No harsh chemicals, just smart biology.
+                Precision chemistry. Calculated protection. Captain Insecticide formulates the perfect chemical solutions for a pest-free harvest. This is clever chemistry.
             </div>
 
             <div class="notify-wrap">
@@ -471,11 +658,55 @@
         </footer>
     </div>
 
+    <!-- JOURNAL OVERLAY -->
+    <div class="journal-overlay">
+        <div class="journal-header">
+            <span class="journal-title">Field Notes</span>
+            <button class="close-btn magnet-area">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="journal-content">
+            <article class="article">
+                <span class="article-meta">01 — Philosophy</span>
+                <h2>Clever Chemistry</h2>
+                <p>
+                    For too long, agricultural protection has been a blunt instrument. We believe in the scalpel. Captain Insecticide represents a paradigm shift from volume to precision. Our laboratories focus on the molecular interaction between pest and deterrent, ensuring maximum efficacy with minimal environmental footprint.
+                </p>
+                <p>
+                    By synthesizing perfect chemical solutions, we eliminate the guesswork. We don't just protect crops; we engineer the future of yield security using advanced synthetic formulations that degrade harmlessly after their mission is complete.
+                </p>
+                <div class="article-divider"></div>
+            </article>
+
+            <article class="article">
+                <span class="article-meta">02 — Innovation</span>
+                <h2>Synthetic Elegance</h2>
+                <p>
+                    Nature is chaotic; chemistry is order. Our flagship compounds are designed with an algorithmic approach to molecular bonding. The result is a product that is ruthless to pests but benign to the crop.
+                </p>
+                <p>
+                    We call this "The Perfect Solution." It is not merely a slogan. It is the result of thousands of hours of titration, observation, and refinement. Welcome to the new era of calculated growth.
+                </p>
+                <div class="article-divider"></div>
+            </article>
+            
+            <article class="article">
+                <span class="article-meta">03 — Roadmap</span>
+                <h2>2026 Deployment</h2>
+                <p>
+                    Field trials across the Midwest have yielded data exceeding our 98th percentile projections. The infrastructure for mass synthesis is currently being finalized.
+                </p>
+            </article>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
 
         const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+        /* --- PRELOADER & HERO ANIMATION --- */
         const tl = gsap.timeline();
         
         tl.to(".preloader-text span", {
@@ -498,6 +729,50 @@
             ease: "power3.out"
         }, "-=0.8");
 
+        /* --- THREE.JS FLUID BACKGROUND INIT --- */
+        function initFluidBackground() {
+            if(isTouch) return; // Optional performance save for mobile
+            
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const uniforms = {
+                uTime: { value: 0 },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            };
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: document.getElementById('vertexShader').textContent,
+                fragmentShader: document.getElementById('fragmentShader').textContent,
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            function animate(time) {
+                requestAnimationFrame(animate);
+                uniforms.uTime.value = time * 0.001;
+                renderer.render(scene, camera);
+            }
+            animate(0);
+
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Init Background
+        initFluidBackground();
+
+        /* --- INTERACTION LOGIC --- */
         window.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             createRipple(touch.pageX, touch.pageY);
@@ -519,6 +794,7 @@
             });
         }
 
+        /* --- SCROLL SKEW (TOUCH) --- */
         if (isTouch) {
             let lastScrollTop = 0;
             let skewTween;
@@ -548,11 +824,14 @@
             }, {passive: true});
         }
 
+        /* --- DESKTOP CURSOR & TILT --- */
         if (!isTouch || window.matchMedia("(pointer: fine)").matches) {
             const cursorDot = document.querySelector('.cursor-dot');
             const cursorCircle = document.querySelector('.cursor-circle');
-            const magnets = document.querySelectorAll('.magnet-area');
-
+            
+            // Fix: Set initial centering offset that GSAP will preserve
+            gsap.set([cursorDot, cursorCircle], {xPercent: -50, yPercent: -50});
+            
             let mouseX = 0, mouseY = 0;
             let cursorX = 0, cursorY = 0;
 
@@ -566,12 +845,15 @@
                 const rotateX = ((mouseY - centerY) / centerY) * -8;
                 const rotateY = ((mouseX - centerX) / centerX) * 8;
                 
-                gsap.to(".tilt-container", {
-                    rotateX: rotateX,
-                    rotateY: rotateY,
-                    duration: 1,
-                    ease: "power2.out"
-                });
+                // Only tilt if journal is closed
+                if(!document.body.classList.contains('journal-open')){
+                    gsap.to(".tilt-container", {
+                        rotateX: rotateX,
+                        rotateY: rotateY,
+                        duration: 1,
+                        ease: "power2.out"
+                    });
+                }
             });
 
             function animateCursor() {
@@ -582,31 +864,107 @@
             }
             animateCursor();
 
-            magnets.forEach(magnet => {
-                magnet.addEventListener('mouseenter', () => {
-                    document.body.classList.add('hovering');
-                    gsap.to(cursorCircle, { width: 60, height: 60, duration: 0.3 });
-                });
-                
-                magnet.addEventListener('mouseleave', () => {
-                    document.body.classList.remove('hovering');
-                    gsap.to(cursorCircle, { width: 40, height: 40, duration: 0.3 });
-                    gsap.to(magnet, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
-                });
+            // Function to re-bind magnets (useful if DOM changes, though not needed here, good practice)
+            function bindMagnets() {
+                const magnets = document.querySelectorAll('.magnet-area');
+                magnets.forEach(magnet => {
+                    magnet.onmouseenter = () => {
+                        document.body.classList.add('hovering');
+                        gsap.to(cursorCircle, { width: 60, height: 60, duration: 0.3 });
+                    };
+                    
+                    magnet.onmouseleave = () => {
+                        document.body.classList.remove('hovering');
+                        gsap.to(cursorCircle, { width: 40, height: 40, duration: 0.3 });
+                        gsap.to(magnet, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+                    };
 
-                magnet.addEventListener('mousemove', (e) => {
-                    const rect = magnet.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    
-                    const moveX = (e.clientX - centerX) * 0.3;
-                    const moveY = (e.clientY - centerY) * 0.3;
-                    
-                    gsap.to(magnet, { x: moveX, y: moveY, duration: 0.3 });
+                    magnet.onmousemove = (e) => {
+                        const rect = magnet.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        
+                        const moveX = (e.clientX - centerX) * 0.3;
+                        const moveY = (e.clientY - centerY) * 0.3;
+                        
+                        gsap.to(magnet, { x: moveX, y: moveY, duration: 0.3 });
+                    };
                 });
+            }
+            bindMagnets();
+        }
+
+        /* --- JOURNAL LOGIC --- */
+        const journalTrigger = document.getElementById('journal-trigger');
+        const journalOverlay = document.querySelector('.journal-overlay');
+        const closeBtn = document.querySelector('.close-btn');
+        const articles = document.querySelectorAll('.article');
+        const wrapper = document.querySelector('.wrapper');
+
+        let isJournalOpen = false;
+
+        journalTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(isJournalOpen) return;
+            openJournal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            closeJournal();
+        });
+
+        function openJournal() {
+            isJournalOpen = true;
+            document.body.classList.add('journal-open');
+
+            // Slide in Overlay
+            gsap.to(journalOverlay, {
+                x: "0%",
+                duration: 1.2,
+                ease: "expo.inOut"
+            });
+
+            // Push/Dim Background Wrapper
+            gsap.to(wrapper, {
+                x: "-10%",
+                scale: 0.95,
+                opacity: 0.3,
+                filter: "blur(2px)",
+                duration: 1.2,
+                ease: "expo.inOut"
+            });
+
+            // Stagger Content In
+            gsap.fromTo(articles, 
+                { y: 50, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, delay: 0.4, ease: "power3.out" }
+            );
+        }
+
+        function closeJournal() {
+            isJournalOpen = false;
+            document.body.classList.remove('journal-open');
+
+            // Slide out Overlay
+            gsap.to(journalOverlay, {
+                x: "101%",
+                duration: 1,
+                ease: "expo.inOut"
+            });
+
+            // Restore Background Wrapper
+            gsap.to(wrapper, {
+                x: "0%",
+                scale: 1,
+                opacity: 1,
+                filter: "blur(0px)",
+                duration: 1,
+                ease: "expo.inOut"
             });
         }
 
+
+        /* --- NOTIFY FORM --- */
         const form = document.getElementById('notifyForm');
         const input = form.querySelector('input');
         const btn = form.querySelector('button');
@@ -632,7 +990,7 @@
                         duration: 0.4,
                         ease: "power2.in",
                         onComplete: () => {
-                            input.value = "You're on the list.";
+                            input.value = "We will be in touch.";
                             input.style.fontStyle = "italic";
                             input.style.opacity = 0; 
                             
