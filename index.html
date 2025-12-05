@@ -178,7 +178,7 @@
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start; /* Changed to flex-start for vertical alignment */
             height: auto;
             min-height: 80px;
             width: 100%;
@@ -188,12 +188,13 @@
         
         .brand-container {
             display: flex;
-            align-items: center;
-            gap: 1.2rem;
+            flex-direction: column; /* Stacks Logo and Text vertically */
+            align-items: flex-start; /* Aligns them to the left */
+            gap: 1rem;
         }
 
         .magnet-area {
-            padding: 15px; 
+            padding: 10px; 
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -218,12 +219,14 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             opacity: 0.9;
+            padding-left: 5px; /* Slight offset to align with logo visual center */
         }
 
         .nav-links {
             display: flex;
-            align-items: center;
-            gap: 0; 
+            flex-direction: column; /* Stacks links vertically (Sidebar style) */
+            align-items: flex-end; /* Aligns them to the right */
+            gap: 0.2rem; 
         }
 
         .nav-item {
@@ -234,7 +237,8 @@
             color: var(--text-color);
             text-decoration: none;
             position: relative;
-            padding: 15px 20px; 
+            padding: 8px 0; /* Reduced horizontal padding for list view */
+            display: inline-block;
         }
         
         .nav-text {
@@ -355,7 +359,7 @@
             width: 50vw;
             height: 100vh;
             background: var(--journal-bg);
-            z-index: 100;
+            z-index: 100; /* Above wrapper, below cursor */
             transform: translateX(101%);
             border-left: 1px solid rgba(11, 29, 21, 0.1);
             display: flex;
@@ -461,8 +465,9 @@
             
             header { 
                 margin-bottom: 3rem;
-                flex-wrap: wrap;
+                flex-wrap: nowrap; /* Prevent wrapping so sidebars stay put */
                 gap: 1rem;
+                align-items: flex-start;
             }
 
             .brand-text { display: block; font-size: 0.7rem; } 
@@ -470,10 +475,12 @@
             .nav-links { 
                 width: auto;
                 margin-left: auto; 
+                /* Keep vertical sidebar style on mobile too */
+                align-items: flex-end;
             }
             .nav-item { 
                 font-size: 0.7rem; 
-                padding: 10px 12px; 
+                padding: 5px 0; 
             }
 
             .hero { 
